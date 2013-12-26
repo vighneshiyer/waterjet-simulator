@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html> <!--<![endif]-->
+<head>
+    <meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Waterjet Simulator</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/jquery-ui-1.8.21.custom.css">
+    <script src="js/vendor/modernizr-2.5.3.min.js"></script>
+</head>
+<body>
+    <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
+         chromium.org/developers/how-tos/chrome-frame-getting-started -->
+    <!--[if lt IE 7]><p class="chromeframe">Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+<div style="display:none;" id="help_modal">
+	<div id="help_modal_header" class="modal_close"></div>
+	<div id="help_modal_title">Info</div>
+	<div id="help_modal_text">
+		<p>To reset individual values to their defaults, click on their labels to the left of their input boxes. Click on the calculate box to sumbit the data to the server for calculation. If there are errors, they will be marked and will have to be corrected before the input can be submitted. To reset the entire datasheet to its default values, click on the reset inputs box below.</p>
+		<p>The interval field controls at what intervals of pressure the waterjet energy will be calculated. For example, if pressure is from 100 - 200, and interval is set to 20, the waterjet energy will be calculated for 100, 120, 140, 160, 180, and 200.</p>
+		<p>Don't set the interval too low or the program might time out in 1 minute.</p>
+		<p>A WebGL enabled browser is required to view the 3D waterjet model. The latest versions of Chrome and Firefox are recommended.</p>
+	</div>
+</div>
+<div id="header">
+	<div id="result">
+		<div id="result_progressbar"></div>
+		<div id="result_text">Click calculate to begin processing</div>
+	</div>
+	<div id="header_tools">
+		<img id="top_bar_help" href="#help_modal" title="Info" alt="Info" src="/img/help.png" />
+	</div>
+	<div id="header_title">Waterjet Simulator</div>
+</div>
+<div id="wrapper">
+	<div id="col1">
+	<div id="form">
+		<form id="input_form">
+			<fieldset>
+			<legend>Geometry Parameters</legend>			
+			<div class="formitem">
+				<label for="NOZZLE_DIAMETER">Nozzle Diameter (m):</label>
+				<input value="0.00028"  data="0.00028" name="NOZZLE_DIAMETER" class="formfield geofield" id="NOZZLE_DIAMETER" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="TUBE_LENGTH">Tube Length (m):</label>
+				<input value="0.076" data="0.076" name="TUBE_LENGTH" class="formfield geofield" id="TUBE_LENGTH" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="TUBE_DIAMETER">Tube Diameter (m):</label>
+				<input value="0.0008" data="0.0008" name="TUBE_DIAMETER" class="formfield geofield" id="TUBE_DIAMETER" type="text" />
+			</div>
+
+			<div class="formitem">
+				<label for="PIPE_LENGTH">Pipe Length (m):</label>
+				<input value="0.5" data="0.5" name="PIPE_LENGTH" class="formfield geofield" id="PIPE_LENGTH" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="PIPE_DIAMETER">Pipe Diameter (m):</label>
+				<input value="0.003" data="0.003" name="PIPE_DIAMETER" class="formfield geofield" id="PIPE_DIAMETER" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="MIXING_CHAMBER_DIAMETER">Mixing Chamber Diameter (m):</label>
+				<input value="0.0045" data="0.0045" name="MIXING_CHAMBER_DIAMETER" class="formfield geofield" id="MIXING_CHAMBER_DIAMETER" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="MIXING_CHAMBER_LENGTH">Mixing Chamber Length (m):</label>
+				<input value="0.015" data="0.015" name="MIXING_CHAMBER_LENGTH" class="formfield geofield" id="MIXING_CHAMBER_LENGTH" type="text" />
+			</div>
+			</fieldset>
+			
+			<fieldset>
+			<legend>Operational Parameters</legend>
+			<div class="formitem">
+				<label for="RHO_WATER">Density of Water (kg/m<span class="superscript">3</span>):</label>
+				<input value="1000" data="1000" name="RHO_WATER" class="formfield" id="RHO_WATER" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="VISC_WATER">Dynamic Viscosity of Water (kg/s&middot;m):</label>
+				<input value="0.001" data="0.001" name="VISC_WATER" class="formfield" id="VISC_WATER" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="RHO_AIR">Density of Air (kg/m<span class="superscript">3</span>):</label>
+				<input value="1.17" data="1.17" name="RHO_AIR" class="formfield" id="RHO_AIR" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="VISC_AIR">Dynamic Viscosity of Air (kg/s&middot;m):</label>
+				<input value="0.000018" data="0.000018" name="VISC_AIR" class="formfield" id="VISC_AIR" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="MDOT_ABRASIVE">Mass Flow Rate of Abrasive (kg/s):</label>
+				<input value="0.004167" data="0.004167" name="MDOT_ABRASIVE" class="formfield" id="MDOT_ABRASIVE" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="DIAMETER_ABRASIVE">Diameter of Abrasive (m):</label>
+				<input value="0.00026548" data="0.00026548" name="DIAMETER_ABRASIVE" class="formfield" id="DIAMETER_ABRASIVE" type="text" />
+			</div>
+
+			<div class="formitem">
+				<label for="RHO_ABRASIVE">Density of Abrasive (kg/m<span class="superscript">3</span>):</label>
+				<input value="4100" data="4100" name="RHO_ABRASIVE" class="formfield" id="RHO_ABRASIVE" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="STAND_OFF_DISTANCE">Stand off Distance (m):</label>
+				<input value="0.0025" data="0.0025" name="STAND_OFF_DISTANCE" class="formfield" id="STAND_OFF_DISTANCE" type="text" />
+			</div>
+
+			<div class="formitem">
+				<label for="TILT_ANGLE">Tilt Angle (radians):</label>
+				<input value="0" data="0" name="TILT_ANGLE" class="formfield" id="TILT_ANGLE" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label for="AMBIENT_PRESSURE">Ambient Pressure (Pa):</label>
+				<input value="101300" data="101300" name="AMBIENT_PRESSURE" class="formfield" id="AMBIENT_PRESSURE" type="text" />
+			</div>
+
+			<div class="formitem">
+				<label for="AMBIENT_TEMPERATURE">Ambient Temperature (K&deg;):</label>
+				<input value="298" data="298" name="AMBIENT_TEMPERATURE" class="formfield" id="AMBIENT_TEMPERATURE" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label id="PRESSURE_LABEL" for="PRESSURE">Pressure (Pa):</label>
+				<input value="646000000" data="646000000" name="PRESSURE_MAX" id="PRESSURE_MAX" type="text" />
+				<span id="to">to</span>
+				<input value="143000000" data="143000000" name="PRESSURE_MIN" id="PRESSURE_MIN" type="text" />
+			</div>
+			
+			<div class="formitem">
+				<label id="INTERVAL_LABEL" for="INTERVAL">Interval (Pa):</label>
+				<input value="5000000" data="5000000" name="INTERVAL" id="INTERVAL" type="text" />
+			</div>
+			</fieldset>
+			
+			<fieldset>
+			<legend>Model Parameters</legend>
+
+			<div class="formitem">
+				<label for="DISCHARGE_COEFFICIENT">Discharge Coefficient:</label>
+				<input value="0.54" data="0.54" name="DISCHARGE_COEFFICIENT" class="formfield" id="DISCHARGE_COEFFICIENT" type="text" />
+			</div>
+			</fieldset>
+			<div id="buttons">
+				<input id="execute" value="Calculate" class="input_button" type="button"/>
+				<input id="reset_defaults" value="Reset Inputs" class="input_button" type="button"/>
+				<input id="csv_download" value="Download CSV" class="input_button" type="button" />
+			</div>
+		</form>
+	</div>
+	</div>
+	
+	<div id="col2">
+		<div id="draw_controls">
+			<div id="draw_title">Left mouse button or A to rotate; Middle mouse button or S to zoom; Right mouse button or D to pan</div>
+			<img id="draw_expand_button" src="/img/expand_draw.png" alt="Expand model" title="Expand model"/>
+			<img id="draw_reset_button" src="/img/reset.png" alt="Reset camera" title="Reset camera"/>
+		</div>
+		<div id="draw_box"></div>
+	</div>
+<div id="graph_top_box">
+	<div id="graph_info">Click and drag to pan. Double click to zoom (or use scrollwheel). Hover over points for their values. Click reset (to the right) to redraw the graph.</div>
+	<img id="graph_reset" src="/img/reset.png" alt="Reset graph" title="Reset graph"/>
+</div>
+<div id="graph_container">
+	<div id="pressure_flux_graph"></div>
+</div>
+
+</div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.7.2.min.js"><\/script>')</script>
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/js/flot/excanvas.min.js"></script><![endif]-->
+	<script src="/js/jquery.ba-resize.min.js"></script>
+    <script src="/js/plugins.js"></script>
+    <script src="/js/jquery-ui-1.8.21.custom.min.js"></script>
+	<script src="/js/jquery.leanModal.min.js"></script>
+	<script src="/js/livevalidation_standalone.compressed.js"></script>
+	<script src="/js/flot/jquery.flot.min.js"></script>
+	<script src="/js/jquery.flot.axislabels.js"></script>
+	<script src="/js/jquery.flot.navigate.min.js"></script>
+	<script src="/js/Three.js"></script>
+	<script src="/js/main.js"></script>
+<noscript>
+	<style type="text/css">
+		#wrapper {display:none;}
+		#nojs {font-size:26px; color:#fff; text-align:center;}
+	</style>
+	<div id="nojs">Javascript is not enabled. For this site to function properly please enable Javascript and use a WebGL compatible browser for the best experience.</div>
+</noscript>
+</body>
+</html>
